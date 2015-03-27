@@ -12,7 +12,8 @@ remote_path = ("https://rawgit.com/patrickfuller/imolecule/master/"
 
 
 def draw(data, format="auto", size=(400, 300), drawing_type="ball and stick",
-         camera_type="perspective", shader="toon", display_html=True):
+         camera_type="perspective", shader="toon", display_html=True,
+         webgl=True):
     """Draws an interactive 3D visualization of the inputted chemical.
 
     Args:
@@ -26,6 +27,8 @@ def draw(data, format="auto", size=(400, 300), drawing_type="ball and stick",
             "phong", or "lambert".
         display_html: If True (default), embed the html in a IPython display,
             if False, returns the html as a string.
+        webgl: If True (default) allow webgl rendering. If False, will try the
+            canvas renderer.
 
     The `format` can be any value specified by Open Babel
     (http://openbabel.org/docs/2.3.1/FileFormats/Overview.html). The "auto"
@@ -54,6 +57,11 @@ def draw(data, format="auto", size=(400, 300), drawing_type="ball and stick",
     except:
         pass
 
+    if webgl:
+        webgl="true"
+    else:
+        webgl="false"
+
     json_mol = generate(data, format)
     div_id = uuid.uuid4()
     html = """<div id="molecule_%s"></div>
@@ -66,7 +74,8 @@ def draw(data, format="auto", size=(400, 300), drawing_type="ball and stick",
                $d.imolecule = jQuery.extend({}, imolecule);
                $d.imolecule.create($d, {drawingType: '%s',
                                         cameraType: '%s',
-                                        shader: '%s'});
+                                        shader: '%s',
+                                        webgl: %s});
                $d.imolecule.draw(%s);
 
                $d.resizable({
@@ -79,7 +88,8 @@ def draw(data, format="auto", size=(400, 300), drawing_type="ball and stick",
            });
            </script>""" % (div_id, local_path[:-3], remote_path[:-3],
                            div_id, size[0], size[1], drawing_type,
-                           camera_type, shader, json_mol, size[0], size[1])
+                           camera_type, shader, webgl, json_mol,
+                           size[0], size[1])
 
     # Execute js and display the results in a div (see script for more)
     if display_html:
